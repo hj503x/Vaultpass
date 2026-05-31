@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VaultPass — Create Account</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding-top: 64px;
+    }
+
+    .auth-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 48px;
+    }
+
+    .auth-form-panel { background: var(--surface); border-left: 1px solid var(--border); }
+
+    .auth-visual {
+      background: var(--black);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 48px;
+    }
+
+    .auth-visual::before {
+      content: '';
+      position: absolute;
+      top: 20%; left: 20%;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%);
+    }
+
+    .auth-visual-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.5rem;
+      font-weight: 600;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-visual-quote span { color: var(--gold); }
+
+    .auth-visual-sub {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-title { font-size: 2rem; margin-bottom: 6px; }
+    .auth-sub { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 36px; }
+    .auth-sub a { color: var(--gold); text-decoration: none; }
+    .auth-sub a:hover { text-decoration: underline; }
+
+    .form-stack { display: flex; flex-direction: column; gap: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .price-display {
+      background: var(--surface-3);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .price-display-num { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; color: var(--gold); }
+
+    .price-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .price-preset {
+      padding: 5px 14px;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-dim);
+      background: none;
+      font-family: 'Syne', sans-serif;
+      transition: all 0.2s;
+    }
+    .price-preset:hover, .price-preset.active { border-color: var(--gold); color: var(--gold); background: var(--gold-glow); }
+
+    .auth-grid-deco {
+      position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0;
+      opacity: 0.04;
+      background-image: 
+        linear-gradient(var(--gold) 1px, transparent 1px),
+        linear-gradient(90deg, var(--gold) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    @media (max-width: 900px) {
+      .auth-page { grid-template-columns: 1fr; }
+      .auth-visual { display: none; }
+      .auth-form-panel { border-left: none; }
+      .auth-panel { padding: 40px 24px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav"></nav>
+
+  <div class="auth-page">
+    <!-- Visual Side -->
+    <div class="auth-visual">
+      <div class="auth-grid-deco"></div>
+      <div class="auth-visual-quote">
+        Set your price.<br>Own your <span>inbox.</span><br>Protect your time.
+      </div>
+      <div class="auth-visual-sub">Join the platform where your attention finally has a price tag.</div>
+    </div>
+
+    <!-- Form Side -->
+    <div class="auth-panel auth-form-panel">
+      <div class="gold-line"></div>
+      <h1 class="auth-title">Create your account</h1>
+      <p class="auth-sub">Already have an account? <a href="login.html">Sign in</a></p>
+
+      <div class="form-stack">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-input" id="name" placeholder="Alex Rivera" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-input" id="username" placeholder="alexrivera" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="email" placeholder="you@example.com" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="password" placeholder="Min. 6 characters" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Short Bio</label>
+          <input type="text" class="form-input" id="bio" placeholder="Founder, creator, investor..." />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Your Message Price</label>
+          <div class="price-display">
+            <span style="color:var(--text-muted);font-size:0.8rem;">Per message delivery</span>
+            <span class="price-display-num" id="price-preview">$25</span>
+          </div>
+          <div class="price-presets">
+            <button class="price-preset" onclick="setPrice(10)">$10</button>
+            <button class="price-preset active" onclick="setPrice(25)">$25</button>
+            <button class="price-preset" onclick="setPrice(50)">$50</button>
+            <button class="price-preset" onclick="setPrice(100)">$100</button>
+            <button class="price-preset" onclick="setPrice(250)">$250</button>
+            <button class="price-preset" onclick="setPrice(500)">$500</button>
+          </div>
+          <input type="number" class="form-input" id="price" value="25" min="1" max="10000" style="margin-top:10px;"
+            oninput="document.getElementById('price-preview').textContent = '$' + (this.value || 0)" />
+          <div class="form-hint">This is what senders pay to reach your inbox. You receive quality — not the money.</div>
+        </div>
+
+        <div id="form-error" class="form-error hidden"></div>
+
+        <button class="btn btn-gold btn-full" id="signup-btn" onclick="handleSignup()">
+          Create My VaultPass
+        </button>
+
+        <p style="font-size:0.75rem;color:var(--text-muted);text-align:center;line-height:1.6;">
+          By signing up you agree to our terms. You understand that the message fee goes to VaultPass as the platform fee — receivers earn quality conversations, not money.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script src="js/vault.js"></script>
+  <script>
+    renderNav('signup');
+    if (VAULT.getCurrentUser()) window.location.href = 'dashboard.html';
+
+    let selectedPrice = 25;
+
+    function setPrice(val) {
+      selectedPrice = val;
+      document.getElementById('price').value = val;
+      document.getElementById('price-preview').textContent = '$' + val;
+      document.querySelectorAll('.price-preset').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function handleSignup() {
+      const name = document.getElementById('name').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const bio = document.getElementById('bio').value.trim();
+      const price = parseFloat(document.getElementById('price').value);
+      const errEl = document.getElementById('form-error');
+      const btn = document.getElementById('signup-btn');
+
+      errEl.classList.add('hidden');
+
+      if (!name || !username || !email || !password) { showError('Please fill in all required fields.'); return; }
+      if (password.length < 6) { showError('Password must be at least 6 characters.'); return; }
+      if (!/^[a-zA-Z0-9_]+$/.test(username)) { showError('Username can only contain letters, numbers, and underscores.'); return; }
+      if (isNaN(price) || price < 1) { showError('Please set a valid message price.'); return; }
+
+      btn.disabled = true;
+      btn.textContent = 'Creating account...';
+
+      setTimeout(() => {
+        const result = VAULT.registerUser({ name, username, email, password, bio, price });
+        if (result.error) {
+          showError(result.error);
+          btn.disabled = false;
+          btn.textContent = 'Create My VaultPass';
+          return;
+        }
+        VAULT.setCurrentUser(result.user);
+        toast('Welcome to VaultPass! Your inbox is ready.', 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 800);
+      }, 600);
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('form-error');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

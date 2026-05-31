@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VaultPass — Inbox</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .dashboard {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      min-height: calc(100vh - 64px);
+      margin-top: 64px;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 64px);
+      position: sticky;
+      top: 64px;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+    }
+
+    .sidebar-user-info { flex: 1; min-width: 0; }
+    .sidebar-user-name { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-user-price { font-size: 0.72rem; color: var(--gold); font-family: 'JetBrains Mono', monospace; }
+
+    .sidebar-convs {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 8px;
+    }
+
+    .conv-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-bottom: 4px;
+      border: 1px solid transparent;
+    }
+    .conv-item:hover { background: var(--surface-2); }
+    .conv-item.active { background: var(--gold-glow); border-color: var(--border-bright); }
+    .conv-item.unread .conv-name { color: var(--text); font-weight: 700; }
+    .conv-item.unread .conv-preview { color: var(--text-dim); }
+
+    .conv-dot {
+      width: 8px; height: 8px;
+      background: var(--gold);
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+    .conv-dot.read { background: transparent; }
+
+    .conv-info { flex: 1; min-width: 0; }
+    .conv-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .conv-preview { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .conv-meta { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; margin-top: 2px; }
+
+    .conv-paid {
+      font-size: 0.68rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--gold);
+      background: var(--gold-glow);
+      border: 1px solid var(--border-bright);
+      padding: 2px 7px;
+      border-radius: 100px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .sidebar-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 64px);
+      overflow: hidden;
+    }
+
+    /* Empty state */
+    .inbox-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px;
+      gap: 16px;
+    }
+
+    .inbox-empty-icon {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 5rem;
+      color: rgba(201,168,76,0.15);
+      line-height: 1;
+    }
+
+    .inbox-empty h2 { font-size: 1.8rem; }
+    .inbox-empty p { color: var(--text-dim); max-width: 360px; font-size: 0.9rem; line-height: 1.7; }
+
+    .inbox-link {
+      background: var(--surface-2);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 360px;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .inbox-link-url {
+      flex: 1;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--gold);
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      border-radius: var(--radius);
+      padding: 6px 14px;
+      font-size: 0.72rem;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .copy-btn:hover { background: var(--gold-light); }
+
+    /* ===== CONVERSATION VIEW ===== */
+    .conv-view { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+
+    .conv-header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .conv-header-info { flex: 1; }
+    .conv-header-name { font-size: 1.1rem; font-weight: 700; }
+    .conv-header-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
+
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .message-bubble {
+      max-width: 68%;
+      display: flex;
+      gap: 12px;
+      animation: msgIn 0.25s ease;
+    }
+    @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .message-bubble.sent { align-self: flex-end; flex-direction: row-reverse; }
+
+    .bubble-content {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      position: relative;
+    }
+
+    .message-bubble.sent .bubble-content {
+      background: var(--gold-glow);
+      border-color: var(--border-bright);
+    }
+
+    .bubble-subject {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .bubble-body { font-size: 0.9rem; line-height: 1.65; }
+
+    .bubble-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .bubble-time { font-size: 0.7rem; color: var(--text-muted); }
+    .bubble-paid { font-size: 0.68rem; font-family: 'JetBrains Mono', monospace; color: var(--gold); }
+
+    .reply-area {
+      padding: 16px 28px 20px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--surface);
+    }
+
+    .reply-box {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .reply-input {
+      flex: 1;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      padding: 12px 16px;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+      min-height: 48px;
+      max-height: 140px;
+      line-height: 1.5;
+    }
+    .reply-input:focus { border-color: var(--gold); }
+    .reply-input::placeholder { color: var(--text-muted); }
+
+    /* Stats row */
+    .stats-row {
+      padding: 16px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 24px;
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard { grid-template-columns: 1fr; }
+      .sidebar { height: auto; position: relative; top: 0; max-height: 280px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav"></nav>
+
+  <div class="dashboard">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">Your Inbox</div>
+        <div class="sidebar-user" id="sidebar-user"></div>
+      </div>
+      <div class="sidebar-convs" id="sidebar-convs">
+        <div class="sidebar-empty">Loading conversations...</div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main-content" id="main-content"></div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script src="js/vault.js"></script>
+  <script>
+    renderNav('dashboard');
+    const user = VAULT.requireAuth('login.html');
+    if (!user) throw new Error('Not logged in');
+
+    let activeConvId = null;
+
+    function init() {
+      renderSidebarUser();
+      renderConversations();
+      renderEmpty();
+    }
+
+    function renderSidebarUser() {
+      document.getElementById('sidebar-user').innerHTML = `
+        <div class="avatar">${user.avatar}</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">${user.name}</div>
+          <div class="sidebar-user-price">${VAULT.formatPrice(user.price)} per message</div>
+        </div>
+      `;
+    }
+
+    function renderConversations() {
+      const convs = VAULT.getConversationsForUser(user.id);
+      const el = document.getElementById('sidebar-convs');
+
+      if (convs.length === 0) {
+        el.innerHTML = `<div class="sidebar-empty">
+          <div style="font-size:2rem;margin-bottom:12px;">◈</div>
+          No messages yet.<br>Share your VaultPass link to start receiving.
+        </div>`;
+        return;
+      }
+
+      el.innerHTML = convs.map(conv => {
+        const otherUserId = conv.senderId === user.id ? conv.receiverId : conv.senderId;
+        const other = VAULT.getUserById(otherUserId);
+        const unread = VAULT.getMessages().some(m => m.conversationId === conv.id && m.receiverId === user.id && !m.read);
+        const firstMsg = VAULT.getMessages().find(m => m.conversationId === conv.id && m.type === 'initial');
+        const paid = firstMsg ? firstMsg.amountPaid : 0;
+
+        return `
+          <div class="conv-item ${activeConvId === conv.id ? 'active' : ''} ${unread ? 'unread' : ''}" onclick="openConversation('${conv.id}')">
+            <div class="conv-dot ${unread ? '' : 'read'}"></div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <div class="conv-name">${other ? other.name : 'Unknown'}</div>
+                ${paid > 0 ? `<div class="conv-paid">${VAULT.formatPrice(paid)}</div>` : ''}
+              </div>
+              <div class="conv-preview">${conv.lastMessage || 'No messages yet'}</div>
+              <div class="conv-meta">${VAULT.formatTime(conv.lastAt)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderEmpty() {
+      const username = user.username;
+      const profileUrl = `${window.location.origin}${window.location.pathname.replace('dashboard.html', '')}profile.html?u=${username}`;
+
+      document.getElementById('main-content').innerHTML = `
+        <div class="inbox-empty">
+          <div class="inbox-empty-icon">◈</div>
+          <h2>Your inbox is waiting</h2>
+          <p>Share your VaultPass profile link. Anyone who wants to reach you pays ${VAULT.formatPrice(user.price)} — you get quality messages only.</p>
+          <div class="inbox-link">
+            <div class="inbox-link-url" id="profile-url">${profileUrl}</div>
+            <button class="copy-btn" onclick="copyLink()">Copy</button>
+          </div>
+          <a href="discover.html" class="btn btn-outline btn-sm" style="margin-top:8px;">Or browse other profiles</a>
+        </div>
+      `;
+    }
+
+    function copyLink() {
+      const url = document.getElementById('profile-url').textContent;
+      navigator.clipboard.writeText(url).then(() => toast('Link copied to clipboard!', 'success'));
+    }
+
+    function openConversation(convId) {
+      activeConvId = convId;
+      VAULT.markConversationRead(convId, user.id);
+      renderConversations();
+      renderConversationView(convId);
+      renderNav('dashboard'); // refresh unread count
+    }
+
+    function renderConversationView(convId) {
+      const conv = VAULT.getConversationById(convId);
+      if (!conv) return;
+
+      const otherUserId = conv.senderId === user.id ? conv.receiverId : conv.senderId;
+      const other = VAULT.getUserById(otherUserId);
+      const messages = VAULT.getMessagesForConversation(convId);
+      const firstMsg = messages.find(m => m.type === 'initial');
+
+      document.getElementById('main-content').innerHTML = `
+        <div class="conv-view">
+          <div class="conv-header">
+            <div class="avatar">${other ? other.avatar : '?'}</div>
+            <div class="conv-header-info">
+              <div class="conv-header-name">${other ? other.name : 'Unknown'}</div>
+              <div class="conv-header-sub">${other ? '@' + other.username : ''} ${firstMsg ? '· Paid ' + VAULT.formatPrice(firstMsg.amountPaid) + ' to message you' : ''}</div>
+            </div>
+          </div>
+
+          <div class="messages-area" id="messages-area">
+            ${messages.map(m => renderMessage(m, user)).join('')}
+          </div>
+
+          <div class="reply-area">
+            <div class="reply-box">
+              <textarea class="reply-input" id="reply-input" placeholder="Write your reply... (free)" rows="2"
+                onkeydown="handleReplyKey(event, '${convId}', '${otherUserId}')"></textarea>
+              <button class="btn btn-gold" onclick="sendReply('${convId}', '${otherUserId}')">Send</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Scroll to bottom
+      setTimeout(() => {
+        const area = document.getElementById('messages-area');
+        if (area) area.scrollTop = area.scrollHeight;
+      }, 50);
+    }
+
+    function renderMessage(msg, currentUser) {
+      const isSent = msg.senderId === currentUser.id;
+      const sender = VAULT.getUserById(msg.senderId);
+      return `
+        <div class="message-bubble ${isSent ? 'sent' : ''}">
+          ${!isSent ? `<div class="avatar" style="width:32px;height:32px;font-size:0.75rem;">${sender ? sender.avatar : '?'}</div>` : ''}
+          <div class="bubble-content">
+            ${msg.subject ? `<div class="bubble-subject">${msg.subject}</div>` : ''}
+            <div class="bubble-body">${msg.body.replace(/\n/g, '<br>')}</div>
+            <div class="bubble-meta">
+              <span class="bubble-time">${VAULT.formatTime(msg.sentAt)}</span>
+              ${msg.amountPaid > 0 ? `<span class="bubble-paid">✦ ${VAULT.formatPrice(msg.amountPaid)} paid</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function handleReplyKey(event, convId, receiverId) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendReply(convId, receiverId);
+      }
+    }
+
+    function sendReply(convId, receiverId) {
+      const input = document.getElementById('reply-input');
+      const body = input.value.trim();
+      if (!body) return;
+
+      VAULT.sendReply({ conversationId: convId, senderId: user.id, receiverId, body });
+      input.value = '';
+      renderConversations();
+      renderConversationView(convId);
+    }
+
+    init();
+  </script>
+</body>
+</html>

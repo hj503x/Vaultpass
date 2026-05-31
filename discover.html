@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VaultPass — Discover</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .discover-page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .page-header-text {}
+    .page-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+    .page-title { font-size: clamp(2rem, 4vw, 3rem); }
+    .page-sub { color: var(--text-dim); font-size: 0.9rem; margin-top: 8px; }
+
+    .search-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-input-wrap {
+      position: relative;
+    }
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+    .search-input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.875rem;
+      padding: 10px 14px 10px 36px;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 260px;
+    }
+    .search-input:focus { border-color: var(--gold); }
+    .search-input::placeholder { color: var(--text-muted); }
+
+    /* ===== PROFILES GRID ===== */
+    .profiles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2px;
+    }
+
+    .profile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      transition: border-color 0.2s, background 0.2s;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .profile-card:hover {
+      border-color: var(--border-bright);
+      background: var(--surface-2);
+    }
+
+    .profile-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .profile-price {
+      text-align: right;
+    }
+
+    .profile-price-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .profile-price-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .profile-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .profile-username {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .profile-bio {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      flex: 1;
+    }
+
+    .profile-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .profile-joined {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-muted);
+    }
+    .no-results-icon { font-size: 3rem; margin-bottom: 16px; color: var(--border-bright); }
+  </style>
+</head>
+<body>
+  <nav class="nav"></nav>
+
+  <div class="page" style="padding-top:64px;">
+    <div class="discover-page">
+      <div class="page-header">
+        <div class="page-header-text">
+          <div class="page-eyebrow">◆ Premium Contacts</div>
+          <h1 class="page-title">Discover Profiles</h1>
+          <p class="page-sub">Find the people worth reaching — and pay to actually get through.</p>
+        </div>
+        <div class="search-bar">
+          <div class="search-input-wrap">
+            <span class="search-icon">⌕</span>
+            <input type="text" class="search-input" id="search-input" placeholder="Search by name or username..." oninput="filterProfiles()" />
+          </div>
+        </div>
+      </div>
+
+      <div class="profiles-grid" id="profiles-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script src="js/vault.js"></script>
+  <script>
+    renderNav('discover');
+
+    const currentUser = VAULT.getCurrentUser();
+    let allProfiles = [];
+
+    function init() {
+      allProfiles = VAULT.getPublicReceivers();
+      // Exclude yourself
+      if (currentUser) allProfiles = allProfiles.filter(u => u.id !== currentUser.id);
+      // Sort by price desc
+      allProfiles.sort((a, b) => b.price - a.price);
+      renderProfiles(allProfiles);
+    }
+
+    function filterProfiles() {
+      const q = document.getElementById('search-input').value.toLowerCase().trim();
+      if (!q) { renderProfiles(allProfiles); return; }
+      const filtered = allProfiles.filter(u =>
+        u.name.toLowerCase().includes(q) ||
+        u.username.toLowerCase().includes(q) ||
+        (u.bio || '').toLowerCase().includes(q)
+      );
+      renderProfiles(filtered);
+    }
+
+    function renderProfiles(profiles) {
+      const grid = document.getElementById('profiles-grid');
+
+      if (profiles.length === 0) {
+        grid.innerHTML = `
+          <div class="no-results">
+            <div class="no-results-icon">◈</div>
+            <p>No profiles found.</p>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = profiles.map(profile => `
+        <a href="profile.html?u=${profile.username}" class="profile-card">
+          <div class="profile-card-top">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div class="avatar avatar-lg">${profile.avatar}</div>
+              <div>
+                <div class="profile-name">${profile.name}</div>
+                <div class="profile-username">@${profile.username}</div>
+              </div>
+            </div>
+            <div class="profile-price">
+              <div class="profile-price-num">${VAULT.formatPrice(profile.price)}</div>
+              <div class="profile-price-label">per message</div>
+            </div>
+          </div>
+
+          <div class="profile-bio">${profile.bio || 'No bio provided.'}</div>
+
+          <div class="profile-card-footer">
+            <span class="profile-joined">Joined ${VAULT.formatDate(profile.joinedAt)}</span>
+            <span class="btn btn-outline btn-sm" style="pointer-events:none;">Message →</span>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VaultPass — Settings</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .settings-page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .settings-header {
+      margin-bottom: 40px;
+    }
+
+    .settings-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    .settings-title { font-size: 2.5rem; margin-bottom: 8px; }
+    .settings-sub { color: var(--text-dim); font-size: 0.9rem; }
+
+    .settings-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .settings-section-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .settings-section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .settings-section-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .profile-preview {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+    }
+
+    .profile-preview-info {}
+    .profile-preview-name { font-size: 1rem; font-weight: 700; }
+    .profile-preview-link { font-size: 0.78rem; color: var(--gold); font-family: 'JetBrains Mono', monospace; }
+
+    .price-slider-section { display: flex; flex-direction: column; gap: 12px; }
+    .price-slider-display {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .price-slider-num { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 700; color: var(--gold); }
+    .price-slider-label { font-size: 0.8rem; color: var(--text-dim); }
+
+    input[type="range"] {
+      width: 100%;
+      appearance: none;
+      height: 4px;
+      background: var(--surface-3);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px; height: 20px;
+      background: var(--gold);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .danger-zone { border-color: rgba(201,76,76,0.2); }
+    .danger-zone .settings-section-header { border-bottom-color: rgba(201,76,76,0.2); }
+
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+    @media (max-width: 640px) {
+      .form-row-2 { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav"></nav>
+
+  <div class="page" style="padding-top:64px;">
+    <div class="settings-page">
+      <div class="settings-header">
+        <div class="settings-eyebrow">◆ Account</div>
+        <h1 class="settings-title">Settings</h1>
+        <p class="settings-sub">Manage your profile, pricing, and account preferences.</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-row" id="stats-row" style="margin-bottom:24px;"></div>
+
+      <!-- Profile -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-title">Profile Information</div>
+        </div>
+        <div class="settings-section-body">
+          <div class="profile-preview" id="profile-preview"></div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-input" id="set-name" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-input" id="set-username" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-input" id="set-email" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Bio</label>
+            <input type="text" class="form-input" id="set-bio" placeholder="Tell people who you are..." />
+          </div>
+
+          <button class="btn btn-gold" onclick="saveProfile()">Save Changes</button>
+        </div>
+      </div>
+
+      <!-- Pricing -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-title">Message Price</div>
+          <span class="badge badge-gold">Your Filter</span>
+        </div>
+        <div class="settings-section-body">
+          <p style="font-size:0.875rem;color:var(--text-dim);line-height:1.6;">
+            This is the price senders pay to deliver a message to your inbox. You don't receive this money — it's a quality filter. Higher price = more serious senders.
+          </p>
+
+          <div class="price-slider-section">
+            <div class="price-slider-display">
+              <div>
+                <div class="price-slider-num" id="price-display">$0</div>
+                <div class="price-slider-label">per message delivery</div>
+              </div>
+              <div class="price-presets">
+                <button class="price-preset" onclick="setSliderPrice(10)">$10</button>
+                <button class="price-preset" onclick="setSliderPrice(25)">$25</button>
+                <button class="price-preset" onclick="setSliderPrice(50)">$50</button>
+                <button class="price-preset" onclick="setSliderPrice(100)">$100</button>
+                <button class="price-preset" onclick="setSliderPrice(250)">$250</button>
+                <button class="price-preset" onclick="setSliderPrice(500)">$500</button>
+              </div>
+            </div>
+            <input type="range" id="price-slider" min="1" max="1000" step="1" oninput="updatePriceDisplay(this.value)" />
+            <div class="range-labels"><span>$1</span><span>$500</span><span>$1,000</span></div>
+          </div>
+
+          <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
+            <p style="font-size:0.78rem;color:var(--text-dim);line-height:1.6;">
+              ◆ Remember: you receive <strong style="color:var(--text);">quality conversations</strong>, not the fee. The platform takes the payment as its service fee. Your reward is a curated inbox.
+            </p>
+          </div>
+
+          <button class="btn btn-gold" onclick="savePrice()">Update Price</button>
+        </div>
+      </div>
+
+      <!-- Your Link -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-title">Your VaultPass Link</div>
+        </div>
+        <div class="settings-section-body">
+          <p style="font-size:0.875rem;color:var(--text-dim);">Share this link anywhere. Anyone who visits can pay to message you.</p>
+          <div style="display:flex;gap:12px;align-items:center;background:var(--surface-2);border:1px solid var(--border-bright);border-radius:var(--radius-lg);padding:14px 16px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--gold);flex:1;word-break:break-all;" id="profile-link-url"></div>
+            <button class="copy-btn" onclick="copyProfileLink()">Copy</button>
+          </div>
+          <a id="view-profile-btn" href="#" class="btn btn-outline btn-sm" target="_blank">View My Profile →</a>
+        </div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <div class="settings-section-title">Change Password</div>
+        </div>
+        <div class="settings-section-body">
+          <div class="form-group">
+            <label class="form-label">Current Password</label>
+            <input type="password" class="form-input" id="current-pw" />
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input type="password" class="form-input" id="new-pw" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm New Password</label>
+              <input type="password" class="form-input" id="confirm-pw" />
+            </div>
+          </div>
+          <button class="btn btn-outline" onclick="changePassword()">Update Password</button>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="settings-section danger-zone">
+        <div class="settings-section-header">
+          <div class="settings-section-title" style="color:var(--danger);">Danger Zone</div>
+        </div>
+        <div class="settings-section-body">
+          <p style="font-size:0.875rem;color:var(--text-dim);">Sign out of your account on this device.</p>
+          <button class="btn btn-danger" onclick="signOut()">Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script src="js/vault.js"></script>
+  <script>
+    renderNav('settings');
+    const user = VAULT.requireAuth('login.html');
+    if (!user) throw new Error('Not logged in');
+
+    function init() {
+      // Populate fields
+      document.getElementById('set-name').value = user.name;
+      document.getElementById('set-username').value = user.username;
+      document.getElementById('set-email').value = user.email;
+      document.getElementById('set-bio').value = user.bio || '';
+      document.getElementById('price-slider').value = user.price;
+      updatePriceDisplay(user.price);
+
+      // Profile preview
+      document.getElementById('profile-preview').innerHTML = `
+        <div class="avatar avatar-lg">${user.avatar}</div>
+        <div class="profile-preview-info">
+          <div class="profile-preview-name">${user.name}</div>
+          <div class="profile-preview-link">@${user.username}</div>
+        </div>
+      `;
+
+      // Link
+      const profileUrl = `${window.location.origin}${window.location.pathname.replace('settings.html', '')}profile.html?u=${user.username}`;
+      document.getElementById('profile-link-url').textContent = profileUrl;
+      document.getElementById('view-profile-btn').href = profileUrl;
+
+      // Stats
+      const convs = VAULT.getConversationsForUser(user.id);
+      const received = convs.filter(c => c.receiverId === user.id).length;
+      const sent = convs.filter(c => c.senderId === user.id).length;
+      const unread = VAULT.getUnreadCount(user.id);
+
+      document.getElementById('stats-row').innerHTML = `
+        <div class="stat-box">
+          <div class="stat-label">Messages Received</div>
+          <div class="stat-value">${received}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Messages Sent</div>
+          <div class="stat-value">${sent}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Unread</div>
+          <div class="stat-value" style="color:${unread > 0 ? 'var(--gold)' : 'var(--text-muted)'}">${unread}</div>
+        </div>
+      `;
+    }
+
+    function updatePriceDisplay(val) {
+      document.getElementById('price-display').textContent = VAULT.formatPrice(val);
+      document.getElementById('price-slider').value = val;
+    }
+
+    function setSliderPrice(val) {
+      updatePriceDisplay(val);
+      document.querySelectorAll('.price-preset').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function saveProfile() {
+      const name = document.getElementById('set-name').value.trim();
+      const username = document.getElementById('set-username').value.trim().toLowerCase();
+      const email = document.getElementById('set-email').value.trim().toLowerCase();
+      const bio = document.getElementById('set-bio').value.trim();
+
+      if (!name || !username || !email) { toast('Please fill in all required fields.', 'error'); return; }
+      if (!/^[a-zA-Z0-9_]+$/.test(username)) { toast('Username can only contain letters, numbers, and underscores.', 'error'); return; }
+
+      // Check username/email uniqueness excluding self
+      const users = VAULT.getUsers();
+      const usernameTaken = users.some(u => u.username === username && u.id !== user.id);
+      const emailTaken = users.some(u => u.email === email && u.id !== user.id);
+      if (usernameTaken) { toast('That username is already taken.', 'error'); return; }
+      if (emailTaken) { toast('That email is already registered.', 'error'); return; }
+
+      VAULT.updateUser(user.id, { name, username, email, bio });
+      VAULT.setCurrentUser(VAULT.getUserById(user.id));
+      toast('Profile updated.', 'success');
+      setTimeout(() => location.reload(), 800);
+    }
+
+    function savePrice() {
+      const price = parseFloat(document.getElementById('price-slider').value);
+      if (isNaN(price) || price < 1) { toast('Please set a valid price.', 'error'); return; }
+      VAULT.updateUser(user.id, { price });
+      VAULT.setCurrentUser(VAULT.getUserById(user.id));
+      toast(`Price updated to ${VAULT.formatPrice(price)}.`, 'success');
+    }
+
+    function changePassword() {
+      const current = document.getElementById('current-pw').value;
+      const newPw = document.getElementById('new-pw').value;
+      const confirm = document.getElementById('confirm-pw').value;
+      const freshUser = VAULT.getUserById(user.id);
+
+      if (!current || !newPw || !confirm) { toast('Please fill in all password fields.', 'error'); return; }
+      if (freshUser.password !== current) { toast('Current password is incorrect.', 'error'); return; }
+      if (newPw.length < 6) { toast('New password must be at least 6 characters.', 'error'); return; }
+      if (newPw !== confirm) { toast('Passwords do not match.', 'error'); return; }
+
+      VAULT.updateUser(user.id, { password: newPw });
+      document.getElementById('current-pw').value = '';
+      document.getElementById('new-pw').value = '';
+      document.getElementById('confirm-pw').value = '';
+      toast('Password updated.', 'success');
+    }
+
+    function copyProfileLink() {
+      const url = document.getElementById('profile-link-url').textContent;
+      navigator.clipboard.writeText(url).then(() => toast('Link copied!', 'success'));
+    }
+
+    function signOut() {
+      VAULT.logout();
+      window.location.href = 'index.html';
+    }
+
+    init();
+  </script>
+</body>
+</html>

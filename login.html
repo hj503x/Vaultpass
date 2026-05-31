@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VaultPass — Sign In</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 84px 24px 40px;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .auth-header { text-align: center; margin-bottom: 40px; }
+    .auth-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      display: block;
+    }
+    .auth-title { font-size: 2.2rem; margin-bottom: 8px; }
+    .auth-sub { color: var(--text-dim); font-size: 0.9rem; }
+    .auth-sub a { color: var(--gold); text-decoration: none; }
+
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+    }
+
+    .form-stack { display: flex; flex-direction: column; gap: 20px; }
+
+    .demo-accounts {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .demo-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .demo-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .demo-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .demo-info { flex: 1; }
+    .demo-name { font-size: 0.82rem; font-weight: 600; }
+    .demo-email { font-size: 0.72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+    .demo-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 5px 12px;
+      font-size: 0.7rem;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .demo-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* Gold glow bg */
+    .auth-page::before {
+      content: '';
+      position: fixed;
+      bottom: 0; right: 0;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(201,168,76,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav"></nav>
+
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
+        <span class="auth-logo">VaultPass</span>
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-sub">No account? <a href="signup.html">Create one free</a></p>
+      </div>
+
+      <div class="auth-card">
+        <div class="form-stack">
+          <!-- Demo accounts -->
+          <div class="demo-accounts">
+            <div class="demo-title">◆ Try Demo Accounts</div>
+            <div class="demo-list">
+              <div class="demo-item">
+                <div class="demo-info">
+                  <div class="demo-name">Alex Rivera — $50/msg</div>
+                  <div class="demo-email">alex@demo.com</div>
+                </div>
+                <button class="demo-btn" onclick="fillDemo('alex@demo.com')">Use</button>
+              </div>
+              <div class="demo-item">
+                <div class="demo-info">
+                  <div class="demo-name">Maya Chen — $100/msg</div>
+                  <div class="demo-email">maya@demo.com</div>
+                </div>
+                <button class="demo-btn" onclick="fillDemo('maya@demo.com')">Use</button>
+              </div>
+              <div class="demo-item">
+                <div class="demo-info">
+                  <div class="demo-name">Jordan Blake — $250/msg</div>
+                  <div class="demo-email">jordan@demo.com</div>
+                </div>
+                <button class="demo-btn" onclick="fillDemo('jordan@demo.com')">Use</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider" style="margin:4px 0;"></div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-input" id="email" placeholder="you@example.com" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="password" placeholder="Your password" />
+          </div>
+
+          <div id="form-error" class="form-error hidden"></div>
+
+          <button class="btn btn-gold btn-full" id="login-btn" onclick="handleLogin()">
+            Sign In to VaultPass
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script src="js/vault.js"></script>
+  <script>
+    renderNav('login');
+    if (VAULT.getCurrentUser()) window.location.href = 'dashboard.html';
+
+    // Allow enter key
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+
+    function fillDemo(email) {
+      document.getElementById('email').value = email;
+      document.getElementById('password').value = 'demo123';
+    }
+
+    function handleLogin() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('login-btn');
+
+      if (!email || !password) { showError('Please enter your email and password.'); return; }
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+
+      setTimeout(() => {
+        const result = VAULT.loginUser(email, password);
+        if (result.error) {
+          showError(result.error);
+          btn.disabled = false;
+          btn.textContent = 'Sign In to VaultPass';
+          return;
+        }
+        VAULT.setCurrentUser(result.user);
+        toast('Welcome back.', 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 600);
+      }, 500);
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('form-error');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
