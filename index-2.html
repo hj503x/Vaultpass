@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VaultPass — Your Attention Has Value</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ===== LANDING SPECIFIC ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Radial gold glow bg */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -60%);
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(201,168,76,0.08);
+      border: 1px solid var(--border-bright);
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 36px;
+      animation: fadeSlideDown 0.8s ease both;
+    }
+    .hero-eyebrow::before {
+      content: '◆';
+      font-size: 0.5rem;
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 12px;
+      animation: fadeSlideDown 0.9s ease 0.1s both;
+    }
+
+    .hero-title-accent {
+      color: var(--gold);
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero-subtitle {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: var(--text-dim);
+      max-width: 560px;
+      margin: 24px auto 48px;
+      line-height: 1.7;
+      animation: fadeSlideDown 1s ease 0.2s both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeSlideDown 1.1s ease 0.3s both;
+    }
+
+    .hero-scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      animation: bounce 2s ease infinite;
+    }
+    @keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+
+    @keyframes fadeSlideDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== HOW IT WORKS ===== */
+    .section { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .section-title { font-size: clamp(2rem, 4vw, 3.5rem); margin-bottom: 20px; }
+    .section-body { color: var(--text-dim); font-size: 1rem; max-width: 540px; line-height: 1.7; }
+
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2px; margin-top: 60px; }
+
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 36px 28px;
+      position: relative;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .step-card:hover { border-color: var(--border-bright); background: var(--surface-2); }
+
+    .step-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 4rem;
+      font-weight: 700;
+      color: rgba(201,168,76,0.12);
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+
+    .step-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 10px; letter-spacing: 0.02em; }
+    .step-body { font-size: 0.875rem; color: var(--text-dim); line-height: 1.65; }
+
+    /* ===== METRICS ===== */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border);
+      margin: 0 0 2px;
+    }
+
+    .metric-box {
+      padding: 48px 32px;
+      border-right: 1px solid var(--border);
+      text-align: center;
+    }
+    .metric-box:last-child { border-right: none; }
+    .metric-num { font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; font-weight: 700; color: var(--gold); line-height: 1; }
+    .metric-label { font-size: 0.8rem; color: var(--text-dim); margin-top: 8px; letter-spacing: 0.06em; }
+
+    /* ===== FOR WHOM ===== */
+    .for-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-top: 40px; }
+
+    .for-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 40px 32px;
+    }
+
+    .for-icon { font-size: 1.5rem; margin-bottom: 16px; }
+    .for-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; margin-bottom: 12px; }
+    .for-body { font-size: 0.875rem; color: var(--text-dim); line-height: 1.7; margin-bottom: 20px; }
+
+    .for-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .for-list li { font-size: 0.85rem; color: var(--text-dim); display: flex; align-items: flex-start; gap: 10px; }
+    .for-list li::before { content: '—'; color: var(--gold); flex-shrink: 0; }
+
+    /* ===== CTA BANNER ===== */
+    .cta-banner {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(201,168,76,0.04), transparent);
+    }
+
+    .cta-banner h2 { font-size: clamp(2rem, 4vw, 3.5rem); margin-bottom: 16px; }
+    .cta-banner p { color: var(--text-dim); margin-bottom: 36px; font-size: 1rem; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    footer p { font-size: 0.8rem; color: var(--text-muted); }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--gold); font-weight: 600; letter-spacing: 0.1em; }
+
+    @media (max-width: 768px) {
+      .metrics-row { grid-template-columns: 1fr; }
+      .metric-box { border-right: none; border-bottom: 1px solid var(--border); }
+      .for-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav"></nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-eyebrow">Exclusive Access Platform</div>
+    <h1 class="hero-title">
+      Your inbox.<br>
+      <span class="hero-title-accent">Your price.</span>
+    </h1>
+    <p class="hero-subtitle">
+      The premium communication layer for high-value people. 
+      Set your price. Receive only messages worth your time. 
+      Real signal. Zero noise.
+    </p>
+    <div class="hero-actions">
+      <a href="signup.html" class="btn btn-gold btn-lg">Claim Your Inbox</a>
+      <a href="discover.html" class="btn btn-outline btn-lg">Browse Profiles</a>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>Scroll</span>
+      <span>↓</span>
+    </div>
+  </section>
+
+  <!-- ===== METRICS ===== -->
+  <div class="metrics-row">
+    <div class="metric-box">
+      <div class="metric-num">100%</div>
+      <div class="metric-label">Signal, zero noise</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num">$0</div>
+      <div class="metric-label">Receiver keeps nothing — quality only</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-num">∞</div>
+      <div class="metric-label">Free replies once connected</div>
+    </div>
+  </div>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <div class="section">
+    <div class="section-label">The System</div>
+    <h2 class="section-title">How VaultPass works</h2>
+    <p class="section-body">A simple mechanism that changes everything. Price filters noise. Effort signals intent.</p>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">01</div>
+        <div class="step-title">Set Your Price</div>
+        <div class="step-body">Receivers join and set their message price — $5, $50, $500. You decide what your attention is worth.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">02</div>
+        <div class="step-title">Sender Pays to Reach You</div>
+        <div class="step-body">Anyone wanting to message pays the fee upfront. This filters out noise instantly. Only serious people proceed.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">03</div>
+        <div class="step-title">Message Delivered</div>
+        <div class="step-body">The message arrives in your VaultPass inbox. No spam. No cold DMs. Just intentional, valuable outreach.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">04</div>
+        <div class="step-title">Conversation is Free</div>
+        <div class="step-body">Once connected, reply freely. Payment is for delivery only — not to lock people in. Real conversations flow naturally.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FOR WHOM ===== -->
+  <div style="max-width:1100px;margin:0 auto;padding:0 24px 100px;">
+    <div class="section-label">Who It's For</div>
+    <div class="for-grid">
+      <div class="for-card">
+        <div class="for-icon">◈</div>
+        <div class="for-title">Receivers</div>
+        <div class="for-body">You have an audience. You get flooded with messages. VaultPass gives you a curated inbox where everyone who shows up has already proven they're serious.</div>
+        <ul class="for-list">
+          <li>Founders and startup CEOs</li>
+          <li>Creators with large audiences</li>
+          <li>Investors and fund managers</li>
+          <li>Influencers and public figures</li>
+          <li>Executives and thought leaders</li>
+        </ul>
+      </div>
+      <div class="for-card">
+        <div class="for-icon">◉</div>
+        <div class="for-title">Senders</div>
+        <div class="for-body">You have something valuable to say. But your message gets buried. VaultPass gives you a guaranteed path to reach people who matter — no cold email roulette.</div>
+        <ul class="for-list">
+          <li>Partnership opportunities</li>
+          <li>Investment pitches</li>
+          <li>Collaboration offers</li>
+          <li>Business proposals</li>
+          <li>Introductions that matter</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CTA ===== -->
+  <div class="cta-banner">
+    <h2>Your attention has<br><span style="color:var(--gold)">real value.</span></h2>
+    <p>Stop letting anyone reach you for free. Start receiving messages worth reading.</p>
+    <a href="signup.html" class="btn btn-gold btn-lg">Get Your VaultPass</a>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <div class="footer-logo">VAULTPASS</div>
+    <p>© 2025 VaultPass. All rights reserved.</p>
+    <p style="font-size:0.75rem;color:var(--text-muted);">Built for those who value signal over noise.</p>
+  </footer>
+
+  <div id="toast-container"></div>
+  <script src="js/vault.js"></script>
+  <script>
+    renderNav('home');
+    // Redirect if already logged in
+    if (VAULT.getCurrentUser()) {
+      document.querySelector('.hero-actions').innerHTML = `
+        <a href="dashboard.html" class="btn btn-gold btn-lg">Go to Your Inbox</a>
+        <a href="discover.html" class="btn btn-outline btn-lg">Browse Profiles</a>
+      `;
+    }
+  </script>
+</body>
+</html>
